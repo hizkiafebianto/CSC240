@@ -17,3 +17,9 @@ https://github.com/arturhoo
 
 Data set:
 http://archive.ics.uci.edu/ml/datasets/Adult
+
+HOW TO RUN THE FILE:
+- Download apriori.py
+- Open it in an IDE, such as Spyder
+- Run all the code
+- You will be prompted the value of minimum support and minimum confidence
