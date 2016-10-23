@@ -14,7 +14,6 @@ from itertools import combinations
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 import urllib2
 
 ##################################################################
@@ -197,8 +196,6 @@ def generate_rules(itemset,min_conf,support,transactions):
                     rules[frozenset(combination)] = (frozenset(k))
         n += -1;       
     return rules
-    
-generate_rules(set(itemsets_list[4].keys()[0]),min_conf,float(10283)/len(transactions),transactions)
  
 ##################################################################
 # DATA PROCESSING
@@ -404,7 +401,6 @@ for idx, item in enumerate(C_list):
         print "\n"
 
 # Print rules
-
 for idx, item in enumerate(rules):
     if len(item) != 0:
         for a, b in item.items():
