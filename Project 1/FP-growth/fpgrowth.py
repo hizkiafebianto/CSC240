@@ -12,6 +12,7 @@ http://archive.ics.uci.edu/ml/datasets/Adult
 # LIBRARIES
 from collections import defaultdict, namedtuple
 import urllib2
+import datetime
 
 ##################################################################
 # TREE STRUCTURE
@@ -291,11 +292,10 @@ def fp_growth(tree, suffix, min_sup, T):
         if support >= (min_sup*len(T)) and item not in suffix:
             beta = [item] + suffix
             yield (beta, support)
-            cond_tree = conditional_tree_from_paths(tree.prefix_paths(item))
+            cond_tree = conditional_fptree(tree.prefix_paths(item))
             for s in fp_growth(cond_tree, beta, min_sup, T):
                 yield s
             
-
 def conditional_fptree(paths):
     """ Build a conditional FPTree"""    
     tree = FPTree()
@@ -377,8 +377,12 @@ keys = ['age','workclass','education','marital','occupation',\
 # APRIORI IMPLEMENTATION
 ##################################################################
 # Prompts user for minimum support and minimum confidence
-min_sup = input("Input minimum support = ")
-min_conf = input("Input minimum confidence = ")
+min_sup = input("Input minimum support [0..1]= ")
+min_conf = input("Input minimum confidence [0..1]= ")
+print "Processing... \n"
+
+# Record start time 
+start = datetime.datetime.now()
 
 # Build the transaction database
 # Each row in the data set will be treated as a transaction
@@ -417,10 +421,18 @@ freq_patterns = defaultdict(int)
 for itemset, sup in fp_growth(Tree,[],min_sup,transactions):
     freq_patterns[frozenset(itemset)] = sup
 
+# Record finish time
+finish = datetime.datetime.now()
+
 # Show results
 print "List of frequent patterns:"
 for item, f in freq_patterns.items():
     print "{}, support: {}\n".format(list(item),f)
+
+# Showing time spent
+print "The operation took {}.".format(finish-start)
+print
+print
 
 ##################################################################
 # A TEST USING TRANSACTION DATA FROM THE TEXTBOOK

@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Oct 14 11:59:07 2016
+Created on Sun Oct 23 11:59:07 2016
 
 @author: Hizkia
-Description: Python Implementation of the Apriori Algorithm
-This code implements an apriori algorithm to find interesting 
-patterns in a census data set retrieved from the following link:
-http://archive.ics.uci.edu/ml/datasets/Adult
+Description: Improving the efficiency of Apriori algorithm by
+transaction reduction. This method is implemented based on the 
+following premise:
+A transaction that does not contain any frequent k-itemsets 
+cannot contain any frequent (k+1)-itemsets. 
+This method can be found on page 255 in the book "Data Mining
+Concepts and Techniques 3rd Edition", Han Jiawei, et al.
 
 """
 # LIBRARIES
@@ -163,6 +166,7 @@ def generate_itemsets(itemsets_list, min_sup, transactions):
                     temp[frozenset(itemset)] += 1
                 
         prune_itemsets(temp,min_sup,transactions)
+        reduce_transactions(temp,transactions) ### Improvement ###
         
         itemsets_list.append(temp)
         k += 1
@@ -177,6 +181,21 @@ def calc_conf(x,transactions,support):
             i += 1;
     return support/(float(i)/len(transactions))
 
+### Improvement ###
+def reduce_transactions(itemsets,transactions):
+    ''' Remove transactions that do not contain any frequent itemsets   
+    '''
+    temp = []
+    for transaction in transactions:
+        subset = False    
+        for key in itemsets.keys():
+            if set(key).issubset(set(transaction)):
+                subset = True
+                break
+        if subset:
+            temp.append(transaction)
+    transactions = temp
+    
 def generate_rules(itemset,min_conf,support,transactions):
     '''Generates rules from a frequent itemset. 
     
@@ -301,8 +320,8 @@ keys = ['age','workclass','education','marital','occupation',\
 ##################################################################
 
 # Prompts user for minimum support and minimum confidence
-min_sup = input("Input minimum support [0..1] = ")
-min_conf = input("Input minimum confidence [0..1] = ")
+min_sup = input("Input minimum support [0..1]= ")
+min_conf = input("Input minimum confidence [0..1]= ")
 print "Processing... \n"
 
 # Record start time 
@@ -314,7 +333,7 @@ for row in data1:
     temp = []
     for i, item in enumerate(row):   
         temp.append('%s=%s'%(keys[i],item))
-    transactions.append(temp[:])
+    transactions.append(temp)
 
 # List of itemsets
 itemsets_list = [defaultdict(int)]
@@ -328,6 +347,10 @@ for transaction in transactions:
 for itemset, f in itemsets_list[0].items():
     if float(f)/len(transactions) < min_sup:
         del itemsets_list[0][itemset]
+
+### Improvements ###
+# Delete transactions that do not contain frequent 1-itemsets
+reduce_transactions(itemsets_list[0],transactions)
 
 # Generate itemsets for k>2
 generate_itemsets(itemsets_list,min_sup,transactions)
@@ -351,14 +374,15 @@ for idx, item in enumerate(itemsets_list):
         print "\n"
 
 # Print rules
+
 for idx, item in enumerate(rules):
     if len(item) != 0:
         for a, b in item.items():
             print "{0} ==> {1}\n".format(list(a),list(b))
-
+        
 # Showing time spent
 print "The operation took {}.".format(finish-start)
-print
+print 
 print
 
 ##################################################################
@@ -415,7 +439,3 @@ for idx, item in enumerate(rules):
     if len(item) != 0:
         for a, b in item.items():
             print "{0} ==> {1}\n".format(list(a),list(b))
-
-
-
-    
